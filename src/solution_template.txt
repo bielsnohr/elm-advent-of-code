@@ -1,0 +1,35 @@
+-- Use this as a base for daily solutions
+module Year2022.Day01 exposing (..)
+
+import Performance exposing (Performance)
+import Result.Extra as Result
+import Parser exposing ((|.), (|=), Parser)
+import Util.Parser
+
+
+solution =
+    { solve = solve
+    , title = "Sonar Sweep"
+    , subtitle = "Scan the sea floor and filter the data."
+    , tests = []
+    , performance = Performance.Acceptable
+    }
+
+
+solve : String -> ( Result String String, Result String String )
+solve input =
+    let
+        numbers =
+            input
+                |> Parser.run (Util.Parser.parseRowsUsing Parser.int)
+                |> Result.mapError Util.Parser.firstErrorMsg
+
+        r1 =
+            Err "-empty-"
+
+        r2 =
+            Err "-empty-"
+    in
+    ( r1
+    , r2
+    )

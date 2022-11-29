@@ -13,6 +13,12 @@ import Time exposing (Posix)
 import Url exposing (Url)
 
 
+-- User-specific information
+username = "bielsnohr"
+start_year = 2022
+current_year = 2022
+
+
 main : Program Flags Model Msg
 main =
     Browser.application
@@ -252,7 +258,7 @@ view_Header model =
                 Nothing ->
                     False
     in
-    [ List.range 2015 2021
+    [ List.range start_year current_year
         |> List.map
             (\y ->
                 Html.a
@@ -446,7 +452,7 @@ view_Footer model =
     Html.footer
         [ HA.class "row footer right"
         ]
-        [ Html.text "albertdahlin.com"
+        [ Html.text username
         ]
 
 
@@ -477,7 +483,9 @@ linkToAdventOfCode year day =
 
 linkToGithub : Int -> Int -> String
 linkToGithub year day =
-    "https://github.com/albertdahlin/elm-advent-of-code/blob/master/src/Year"
+    "https://github.com/"
+        ++ username 
+        ++ "/elm-advent-of-code/blob/master/src/Year"
         ++ String.fromInt year
         ++ "/Day"
         ++ (String.fromInt day |> String.padLeft 2 '0')
