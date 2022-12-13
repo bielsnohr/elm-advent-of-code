@@ -4,6 +4,7 @@ import Performance exposing (Performance)
 import Year2022.Day01
 import Year2022.Day02
 import Year2022.Day03
+import Year2022.Day04
 
 type alias Solution =
     { solve : String -> ( Result String String, Result String String )
@@ -29,6 +30,9 @@ for year day =
 
                 3 ->
                     Just Year2022.Day03.solution
+
+                4 ->
+                    Just Year2022.Day04.solution
 
                 _ ->
                     Nothing
