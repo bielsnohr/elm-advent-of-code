@@ -5,6 +5,7 @@ import Year2022.Day01
 import Year2022.Day02
 import Year2022.Day03
 import Year2022.Day04
+import Year2022.Day05
 
 type alias Solution =
     { solve : String -> ( Result String String, Result String String )
@@ -33,6 +34,9 @@ for year day =
 
                 4 ->
                     Just Year2022.Day04.solution
+
+                5 ->
+                    Just Year2022.Day05.solution
 
                 _ ->
                     Nothing
