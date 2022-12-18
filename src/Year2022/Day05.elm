@@ -24,7 +24,7 @@ import List.Extra exposing (setAt)
 solution =
     { solve = solve
     , title = "Supply Stacks"
-    , subtitle = "Figure out which crates end up on which stacks."
+    , subtitle = "Figure out which crates end up on which stacks. Note: you need to get rid of the index line in the input."
     , tests = []
     , performance = Performance.Acceptable
     }
@@ -64,9 +64,14 @@ solve input =
                 (_, _) ->
                     Err "failure"
 
-
         r2 =
-            Err "--empty--"
+            case (stack_init, instructions) of
+                (stacks, Ok instrucs) ->
+                    List.foldl apply9001Instruction stacks instrucs
+                        |> getTopCrates |> Ok
+                (_, _) ->
+                    Err "failure"
+
     in
     ( r1
     , r2
@@ -82,7 +87,7 @@ stackParser =
                     |= getChompedString (chompIf Char.isAlpha)
                     |. symbol "]"
                 , succeed (\_ -> Loop ("" :: crates))
-                    |= symbol (String.repeat 3 " ")
+                    |= symbol (String.repeat 4 " ")
                 , succeed (\_ -> Loop (crates))
                     |= chompIf (\c -> c == ' ')
                 , succeed (Done <| List.reverse crates)
@@ -131,6 +136,19 @@ applyInstruction move stacks =
       from_stack_split = splitAt move.numCrates <| Maybe.withDefault [] <| getAt move.fromIndex stacks
       new_from_stack = Tuple.second from_stack_split
       moved_crates = Tuple.first from_stack_split |> reverse
+      old_to_stack = Maybe.withDefault [] <| getAt move.toIndex stacks
+      new_to_stack = append moved_crates old_to_stack
+  in
+  stacks
+    |> setAt move.fromIndex new_from_stack
+    |> setAt move.toIndex new_to_stack
+
+apply9001Instruction : MoveInstruction -> Stacks -> Stacks
+apply9001Instruction move stacks =
+  let
+      from_stack_split = splitAt move.numCrates <| Maybe.withDefault [] <| getAt move.fromIndex stacks
+      new_from_stack = Tuple.second from_stack_split
+      moved_crates = Tuple.first from_stack_split
       old_to_stack = Maybe.withDefault [] <| getAt move.toIndex stacks
       new_to_stack = append moved_crates old_to_stack
   in
