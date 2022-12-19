@@ -6,7 +6,7 @@ import List.Extra exposing (transpose)
 import Parser exposing (Parser)
 import Test exposing (..)
 import Util.Parser
-import Year2022.Day06 exposing (..)
+import Year2022.Day05 exposing (..)
 
 
 test_stackParser : Test
