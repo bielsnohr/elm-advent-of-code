@@ -10,6 +10,12 @@
   It really isn't terribly intuitive. The introductory documentation could be
   much better.
 
+### Day 6
+
+- Just parsing a string using sets.
+- Took a bit of time to think how to do this without a loop, and in this case I
+  decided on recursion.
+
 ### General
 
 - Debugging is not a great experience in Elm. From what I can tell, there is no

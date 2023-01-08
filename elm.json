@@ -20,10 +20,10 @@
             "elm-community/result-extra": "2.4.0",
             "malaire/elm-uint64": "2.0.0",
             "rtfeldman/elm-hex": "1.0.0",
-            "truqu/elm-md5": "1.1.0"
+            "truqu/elm-md5": "1.1.0",
+            "zwilias/elm-rosetree": "1.5.0"
         },
         "indirect": {
-            "elm/bytes": "1.0.8",
             "elm/virtual-dom": "1.0.2",
             "zwilias/elm-utf-tools": "2.0.1"
         }
@@ -33,6 +33,7 @@
             "elm-explorations/test": "2.1.0"
         },
         "indirect": {
+            "elm/bytes": "1.0.8",
             "elm/random": "1.0.0"
         }
     }
