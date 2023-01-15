@@ -1,12 +1,19 @@
-module TestYear2022.Day07 exposing (test_actionParser, test_addLeaf, test_calculateDirectorySizeTree, test_sumFileDirSize)
+module TestYear2022.Day07 exposing (test_AocTestCase_buildDirTree, test_actionParser, test_addLeaf, test_applyAction, test_calculateDirectorySizeTree, test_sumFileDirSize)
 
 import Expect
 import Html.Attributes exposing (action, dir)
+import Maybe exposing (withDefault)
 import Parser exposing (Parser)
 import Test exposing (Test, describe, test)
 import Tree exposing (Tree, appendChild, singleton, tree)
 import Tree.Zipper as TZ
 import Year2022.Day07 exposing (..)
+
+
+
+{--
+== Test Data ==
+--}
 
 
 singleFileTree : Tree FileDir
@@ -26,7 +33,7 @@ dirD =
 
 onlyFilesTree : Tree FileDir
 onlyFilesTree =
-    tree { name = "top", size = 0, dir = True }
+    tree { name = "/", size = 0, dir = True }
         [ tree { name = "a.txt", size = 1, dir = False } []
         , tree { name = "b.txt", size = 2, dir = False } []
         , tree { name = "c.txt", size = 3, dir = False } []
@@ -35,7 +42,7 @@ onlyFilesTree =
 
 onlyFilesTree2 : Tree FileDir
 onlyFilesTree2 =
-    tree { name = "top", size = 0, dir = True }
+    tree { name = "/", size = 0, dir = True }
         [ tree { name = "a.txt", size = 1, dir = False } []
         , tree { name = "b.txt", size = 2, dir = False } []
         , tree { name = "c.txt", size = 3, dir = False } []
@@ -45,7 +52,7 @@ onlyFilesTree2 =
 
 oneSubDirTree : Tree FileDir
 oneSubDirTree =
-    tree { name = "top", size = 0, dir = True }
+    tree { name = "/", size = 0, dir = True }
         [ tree { name = "a.txt", size = 1, dir = False } []
         , tree { name = "b.txt", size = 2, dir = False } []
         , tree { name = "c.txt", size = 3, dir = False } []
@@ -76,6 +83,61 @@ nestedDir =
 nestedDirResult : Tree Int
 nestedDirResult =
     tree 12 [ singleton 6 ]
+
+
+aocTestCaseFileSystem : Tree FileDir
+aocTestCaseFileSystem =
+    tree { name = "/", size = 0, dir = True }
+        [ tree (FileDir "a" 0 True)
+            [ tree (FileDir "e" 0 True)
+                [ singleton (FileDir "i" 584 False)
+                ]
+            , singleton (FileDir "f" 29116 False)
+            , singleton (FileDir "g" 2557 False)
+            , singleton (FileDir "h.lst" 62596 False)
+            ]
+        , singleton (FileDir "b.txt" 14848514 False)
+        , singleton (FileDir "c.dat" 8504156 False)
+        , tree (FileDir "d" 0 True)
+            [ singleton (FileDir "j" 4060174 False)
+            , singleton (FileDir "d.log" 8033020 False)
+            , singleton (FileDir "d.ext" 5626152 False)
+            , singleton (FileDir "k" 7214296 False)
+            ]
+        ]
+
+
+aocTestCaseActionList : List Action
+aocTestCaseActionList =
+    [ ListDir
+    , AddDir "a"
+    , AddFile 14848514 "b.txt"
+    , AddFile 8504156 "c.dat"
+    , AddDir "d"
+    , ChangeDir "a"
+    , ListDir
+    , AddDir "e"
+    , AddFile 29116 "f"
+    , AddFile 2557 "g"
+    , AddFile 62596 "h.lst"
+    , ChangeDir "e"
+    , ListDir
+    , AddFile 584 "i"
+    , ChangeUpDir
+    , ChangeUpDir
+    , ChangeDir "d"
+    , ListDir
+    , AddFile 4060174 "j"
+    , AddFile 8033020 "d.log"
+    , AddFile 5626152 "d.ext"
+    , AddFile 7214296 "k"
+    ]
+
+
+
+{--
+== Tests ==
+--}
 
 
 test_sumFileDirSize : Test
@@ -136,3 +198,33 @@ test_addLeaf =
                 addLeaf onlyFilesZipper dirD
                     |> Expect.equal oneSubDirZipper
         ]
+
+
+test_applyAction : Test
+test_applyAction =
+    describe "Test the applyAction function"
+        [ test "Adding a file" <|
+            \_ ->
+                applyAction (AddFile 4 "d.txt") onlyFilesZipper
+                    |> Expect.equal onlyFilesZipper2
+        , test "Adding a directory" <|
+            \_ ->
+                applyAction (AddDir "d") onlyFilesZipper
+                    |> Expect.equal oneSubDirZipper
+        , test "Change directory" <|
+            \_ ->
+                let
+                    changed_dir_focus =
+                        withDefault oneSubDirZipper <| TZ.lastChild oneSubDirZipper
+                in
+                applyAction (ChangeDir "d") oneSubDirZipper
+                    |> Expect.equal changed_dir_focus
+        ]
+
+
+test_AocTestCase_buildDirTree : Test
+test_AocTestCase_buildDirTree =
+    test "Use the Action list from the AoC test case to build the file tree" <|
+        \_ ->
+            buildDirTree aocTestCaseActionList
+                |> Expect.equal aocTestCaseFileSystem

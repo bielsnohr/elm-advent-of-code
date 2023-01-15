@@ -1,6 +1,7 @@
 module Year2022.Day07 exposing (..)
 
 import List.Extra as LE
+import Maybe exposing (withDefault)
 import Parser exposing ((|.), (|=), Parser, chompWhile, getChompedString, int, keyword, map, oneOf, spaces, succeed, symbol)
 import Performance
 import Result.Extra as Result
@@ -95,6 +96,12 @@ buildDirTree actions =
     List.foldl applyAction top_dir actions |> TZ.toTree
 
 
+
+-- This could be more robust by returning a Result (TZ.Zipper FileDir) since the
+-- application of an action could fail in a variety of ways, and that should be
+-- passed through.
+
+
 applyAction : Action -> TZ.Zipper FileDir -> TZ.Zipper FileDir
 applyAction action zipper =
     case action of
@@ -104,7 +111,18 @@ applyAction action zipper =
         AddDir name ->
             addLeaf zipper (FileDir name 0 True)
 
-        _ ->
+        ChangeDir name ->
+            case TZ.firstChild zipper of
+                Just first_child ->
+                    changeToChildDir first_child name
+
+                Nothing ->
+                    zipper
+
+        ChangeUpDir ->
+            withDefault zipper <| TZ.parent zipper
+
+        ListDir ->
             zipper
 
 
@@ -115,12 +133,31 @@ addLeaf zipper filedir =
         -- if the current focus doesn't have any children. Could easily add a
         -- call to `Tree.Zipper.lastChild` and then add a case for Nothing that
         -- replicates the below.
-        -- There should also be a check is the parent (i.e. current root focus)
+        -- There should also be a check the parent (i.e. current root focus)
         -- is a directory because that is the only thing that can have leaves added
         new_focus_tree =
             TZ.tree zipper |> T.appendChild (T.singleton filedir)
     in
     TZ.replaceTree new_focus_tree zipper
+
+
+changeToChildDir : TZ.Zipper FileDir -> String -> TZ.Zipper FileDir
+changeToChildDir zipper dir_name =
+    let
+        name =
+            TZ.label zipper |> .name
+    in
+    if name == dir_name then
+        zipper
+
+    else
+        case TZ.nextSibling zipper of
+            Just sibling ->
+                changeToChildDir sibling dir_name
+
+            -- This should be an error...
+            Nothing ->
+                TZ.parent zipper |> withDefault zipper
 
 
 calculateDirectorySizeTree : T.Tree FileDir -> T.Tree Int
