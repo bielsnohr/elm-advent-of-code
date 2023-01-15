@@ -1,7 +1,14 @@
-module TestYear2022.Day07 exposing (test_AocTestCase_buildDirTree, test_actionParser, test_addLeaf, test_applyAction, test_calculateDirectorySizeTree, test_sumFileDirSize)
+module TestYear2022.Day07 exposing
+    ( test_AocTestCase_buildDirTree
+    , test_AocTestCase_sumFileSystem
+    , test_actionParser
+    , test_addLeaf
+    , test_applyAction
+    , test_calculateDirectorySizeTree
+    , test_sumFileDirSize
+    )
 
 import Expect
-import Html.Attributes exposing (action, dir)
 import Maybe exposing (withDefault)
 import Parser exposing (Parser)
 import Test exposing (Test, describe, test)
@@ -11,9 +18,7 @@ import Year2022.Day07 exposing (..)
 
 
 
-{--
-== Test Data ==
---}
+-- Test Data --
 
 
 singleFileTree : Tree FileDir
@@ -134,10 +139,13 @@ aocTestCaseActionList =
     ]
 
 
+aocTestCaseDirSizeTree : Tree Int
+aocTestCaseDirSizeTree =
+    tree 48381165 [ tree 94853 [ tree 584 [] ], tree 24933642 [] ]
 
-{--
-== Tests ==
---}
+
+
+-- Tests --
 
 
 test_sumFileDirSize : Test
@@ -228,3 +236,11 @@ test_AocTestCase_buildDirTree =
         \_ ->
             buildDirTree aocTestCaseActionList
                 |> Expect.equal aocTestCaseFileSystem
+
+
+test_AocTestCase_sumFileSystem : Test
+test_AocTestCase_sumFileSystem =
+    test "Use the FileDir tree from the AoC test case to find the sum of the dirs below 100000" <|
+        \_ ->
+            sumFilteredDirSizes 100000 aocTestCaseDirSizeTree
+                |> Expect.equal 95437

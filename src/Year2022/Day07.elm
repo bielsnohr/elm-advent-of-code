@@ -23,14 +23,24 @@ solution =
 solve : String -> ( Result String String, Result String String )
 solve input =
     let
-        file_system =
+        action_list =
             input
                 |> String.split "\n"
+                -- Ignore the first cd command
                 |> List.tail
                 |> Maybe.withDefault []
+                |> List.map (Parser.run actionParser)
+                -- Again, not great practice because the Result should be
+                -- propagated through
+                |> List.filterMap Result.toMaybe
 
         r1 =
-            Err "--empty--"
+            action_list
+                |> buildDirTree
+                |> calculateDirectorySizeTree
+                |> sumFilteredDirSizes 100000
+                |> String.fromInt
+                |> Ok
 
         r2 =
             Err "--empty--"
@@ -193,3 +203,8 @@ sumFileDirSize sum t =
 
     else
         ( new_sum, Nothing )
+
+
+sumFilteredDirSizes : Int -> T.Tree Int -> Int
+sumFilteredDirSizes upper_limit tree =
+    T.flatten tree |> List.filter (\a -> a <= upper_limit) |> List.sum
