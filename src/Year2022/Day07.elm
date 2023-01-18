@@ -34,16 +34,22 @@ solve input =
                 -- propagated through
                 |> List.filterMap Result.toMaybe
 
-        r1 =
+        dir_size_tree =
             action_list
                 |> buildDirTree
                 |> calculateDirectorySizeTree
+
+        r1 =
+            dir_size_tree
                 |> sumFilteredDirSizes 100000
                 |> String.fromInt
                 |> Ok
 
         r2 =
-            Err "--empty--"
+            dir_size_tree
+                |> findSmallestDirToFreeSpace 70000000 30000000
+                |> String.fromInt
+                |> Ok
     in
     ( r1
     , r2
@@ -208,3 +214,16 @@ sumFileDirSize sum t =
 sumFilteredDirSizes : Int -> T.Tree Int -> Int
 sumFilteredDirSizes upper_limit tree =
     T.flatten tree |> List.filter (\a -> a <= upper_limit) |> List.sum
+
+
+findSmallestDirToFreeSpace : Int -> Int -> T.Tree Int -> Int
+findSmallestDirToFreeSpace total_size required_size tree =
+    let
+        minimum_size =
+            required_size - (total_size - T.label tree)
+    in
+    T.flatten tree
+        |> List.filter (\a -> a >= minimum_size)
+        |> List.sort
+        |> List.head
+        |> Maybe.withDefault 0
