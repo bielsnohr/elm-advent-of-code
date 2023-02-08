@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Elm environment
+      uses: jorelali/setup-elm@v3
+      with:
+        elm-version: 0.19.1
+    - name: Run the unit tests
+      run: npx elm-test
+    - name: Build the app
+      run: elm make src/Main.elm
